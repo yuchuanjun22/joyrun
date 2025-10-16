@@ -1,0 +1,17 @@
+{
+    "name": "奔跑者俱乐部",
+    "short_name": "跑步打卡",
+    "description": "跑步团体打卡和社交平台",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#4CAF50",
+    "theme_color": "#4CAF50",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0Q0FGNTAiLz4KPHBhdGggZD0iTTk2IDU2QzExMS40NjQgNTYgMTI0IDY4LjUzNiAxMjQgODRDMTI0IDk5LjQ2NCAxMTEuNDY0IDExMiA5NiAxMTJDODAuNTM2IDExMiA2OCA5OS40NjQgNjggODRDNjggNjguNTM2IDgwLjUzNiA1NiA5NiA1NlpNMTM2IDE0NEg1NkM1MS41ODIgMTQ0IDQ4IDE0MC40MTggNDggMTM2VjEyMEM0OCAxMTUuNTgyIDUxLjU4MiAxMTIgNTYgMTEySDEzNkMxNDAuNDE4IDExMiAxNDQgMTE1LjU4MiAxNDQgMTIwVjEzNkMxNDQgMTQwLjQxOCAxNDAuNDE4IDE0NCAxMzYgMTQ0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        }
+    ]
+}
