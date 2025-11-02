@@ -1,0 +1,3010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>池州悦跑团 - 跑步打卡系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --night-run: #667eea;
+            --soul-run: #9b59b6;
+            --fund: #f39c12;
+            --reward: #e67e22;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            background-color: var(--light);
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .form-container {
+            padding: 20px 30px;
+            background-color: var(--light);
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .pace-calculator {
+            background: #e8f4fc;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .pace-result {
+            font-weight: bold;
+            color: var(--primary);
+            margin-left: 5px;
+        }
+        
+        .feeling-custom {
+            margin-top: 5px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-night {
+            background: linear-gradient(135deg, var(--night-run), #764ba2);
+            color: white;
+        }
+        
+        .btn-soul {
+            background: linear-gradient(135deg, var(--soul-run), #8e44ad);
+            color: white;
+        }
+        
+        .btn-fund {
+            background: linear-gradient(135deg, var(--fund), #e67e22);
+            color: white;
+        }
+        
+        .btn-reward {
+            background: linear-gradient(135deg, var(--reward), #d35400);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        th {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .night-run-header {
+            background: linear-gradient(90deg, var(--night-run), #764ba2);
+        }
+        
+        .soul-run-header {
+            background: linear-gradient(90deg, var(--soul-run), #8e44ad);
+        }
+        
+        .fund-header {
+            background: linear-gradient(90deg, var(--fund), #e67e22);
+        }
+        
+        .reward-header {
+            background: linear-gradient(90deg, var(--reward), #d35400);
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--light);
+        }
+        
+        tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .ranking-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .ranking-badge.gold {
+            background: #ffd700;
+        }
+        
+        .ranking-badge.silver {
+            background: #c0c0c0;
+        }
+        
+        .ranking-badge.bronze {
+            background: #cd7f32;
+        }
+        
+        .ranking-badge.night {
+            background: var(--night-run);
+        }
+        
+        .ranking-badge.soul {
+            background: var(--soul-run);
+        }
+        
+        .feeling-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .feeling-excellent {
+            background-color: #e8f6f3;
+            color: #27ae60;
+        }
+        
+        .feeling-good {
+            background-color: #eaf2f8;
+            color: #2980b9;
+        }
+        
+        .feeling-normal {
+            background-color: #fef9e7;
+            color: #f39c12;
+        }
+        
+        .feeling-tired {
+            background-color: #fdedec;
+            color: #e74c3c;
+        }
+        
+        .feeling-custom-style {
+            background-color: #f0e6ff;
+            color: #8e44ad;
+        }
+        
+        .time-type-badge {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            min-width: 60px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .morning-run {
+            background: linear-gradient(135deg, #ff9a00, #ff6a00);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .night-run {
+            background: linear-gradient(135deg, var(--night-run), #764ba2);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .night-runner-title {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--night-run), #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .soul-runner-title {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--soul-run), #8e44ad);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(155, 89, 182, 0.3);
+            animation: soul-glow 2s ease-in-out infinite alternate;
+        }
+        
+        .fund-title {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--fund), #e67e22);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .reward-title {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--reward), #d35400);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            }
+            to {
+                box-shadow: 0 3px 20px rgba(102, 126, 234, 0.6);
+            }
+        }
+        
+        @keyframes soul-glow {
+            from {
+                box-shadow: 0 3px 10px rgba(155, 89, 182, 0.3);
+            }
+            to {
+                box-shadow: 0 3px 20px rgba(155, 89, 182, 0.6);
+            }
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .data-management {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .data-management h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .import-export-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-label:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .import-format {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .import-format h4 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .import-format pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        
+        footer {
+            background: linear-gradient(90deg, var(--dark), #34495e);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .footer-text {
+            margin-bottom: 5px;
+        }
+        
+        .footer-slogan {
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .message.success {
+            background-color: var(--secondary);
+        }
+        
+        .message.error {
+            background-color: var(--accent);
+        }
+        
+        .message.show {
+            transform: translateX(0);
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-style: italic;
+        }
+        
+        .night-runner-section, .soul-runner-section, .fund-section, .reward-section {
+            background: linear-gradient(135deg, #f0f4ff, #e6f0ff);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid var(--night-run);
+        }
+        
+        .soul-runner-section {
+            background: linear-gradient(135deg, #f8f0ff, #f0e6ff);
+            border-left: 5px solid var(--soul-run);
+        }
+        
+        .fund-section {
+            background: linear-gradient(135deg, #fff9e6, #fff0cc);
+            border-left: 5px solid var(--fund);
+        }
+        
+        .reward-section {
+            background: linear-gradient(135deg, #ffe6e6, #ffcccc);
+            border-left: 5px solid var(--reward);
+        }
+        
+        .night-runner-title-main, .soul-runner-title-main, .fund-title-main, .reward-title-main {
+            font-size: 1.5rem;
+            color: var(--night-run);
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .soul-runner-title-main {
+            color: var(--soul-run);
+        }
+        
+        .fund-title-main {
+            color: var(--fund);
+        }
+        
+        .reward-title-main {
+            color: var(--reward);
+        }
+        
+        .night-runner-grid, .soul-runner-grid, .fund-grid, .reward-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .night-runner-card, .soul-runner-card, .fund-card, .reward-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .soul-runner-card {
+            box-shadow: 0 3px 10px rgba(155, 89, 182, 0.1);
+        }
+        
+        .fund-card {
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.1);
+        }
+        
+        .reward-card {
+            box-shadow: 0 3px 10px rgba(230, 126, 34, 0.1);
+        }
+        
+        .night-runner-card.top, .soul-runner-card.top, .fund-card.top, .reward-card.top {
+            border-color: var(--night-run);
+            transform: scale(1.05);
+        }
+        
+        .soul-runner-card.top {
+            border-color: var(--soul-run);
+        }
+        
+        .fund-card.top {
+            border-color: var(--fund);
+        }
+        
+        .reward-card.top {
+            border-color: var(--reward);
+        }
+        
+        .night-runner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .soul-runner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.2);
+        }
+        
+        .fund-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.2);
+        }
+        
+        .reward-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.2);
+        }
+        
+        .night-runner-name, .soul-runner-name, .fund-name, .reward-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .night-runner-stats, .soul-runner-stats, .fund-stats, .reward-stats {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .feeling-text {
+            font-style: italic;
+            margin-top: 5px;
+            color: var(--dark);
+        }
+        
+        .runner-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .runner-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .fund-usage-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--fund);
+        }
+        
+        .sponsor-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .reward-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--reward);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .fund-progress {
+            background: linear-gradient(90deg, var(--fund), #e67e22);
+        }
+        
+        .points-system {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .points-rule {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .points-rule:last-child {
+            border-bottom: none;
+        }
+        
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .edit-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .editable-item {
+            position: relative;
+            padding-right: 40px;
+        }
+        
+        .edit-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-icon:hover {
+            background: #2980b9;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .delete-icon {
+            background: var(--accent);
+        }
+        
+        .delete-icon:hover {
+            background: #c0392b;
+        }
+        
+        .sponsor-management, .fund-management {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .management-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 12px 15px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .tab.active {
+                border-bottom: 3px solid var(--primary);
+            }
+            
+            .logo {
+                position: static;
+                transform: none;
+                margin-bottom: 10px;
+            }
+            
+            header {
+                text-align: center;
+            }
+            
+            .import-export-options {
+                flex-direction: column;
+            }
+            
+            .night-runner-grid, .soul-runner-grid, .fund-grid, .reward-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .runner-list {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .management-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🏃‍♂️ 池州悦跑团</div>
+            <h1>跑步打卡系统</h1>
+            <p class="subtitle">健康生活，从跑步开始</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-value" id="totalRuns">0</div>
+                <div class="stat-label">总跑步次数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDistance">0 km</div>
+                <div class="stat-label">总里程</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalRunners">0</div>
+                <div class="stat-label">参与人数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgPace">0:00</div>
+                <div class="stat-label">平均配速</div>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <h2 style="margin-bottom: 15px; color: var(--dark);">今日打卡</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="runnerName">跑步者姓名</label>
+                    <input type="text" id="runnerName" class="form-control" placeholder="请输入您的姓名">
+                </div>
+                <div class="form-group">
+                    <label for="runDate">跑步日期</label>
+                    <input type="date" id="runDate" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="runDistance">跑步里程 (km)</label>
+                    <input type="number" id="runDistance" class="form-control" placeholder="例如：5.2" step="0.1" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="runTime">跑步时长 (分钟)</label>
+                    <input type="number" id="runTime" class="form-control" placeholder="例如：28" min="0">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="runPace">跑步配速 (分钟/公里)</label>
+                    <input type="text" id="runPace" class="form-control" placeholder="自动计算" readonly>
+                    <div class="pace-calculator">
+                        配速计算: <span id="paceResult" class="pace-result">--:--</span>
+                        <small style="color: var(--gray); display: block; margin-top: 5px;">
+                            根据里程和时长自动计算
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="runFeeling">跑步感受</label>
+                    <select id="runFeeling" class="form-control">
+                        <option value="精力充沛">精力充沛</option>
+                        <option value="状态良好">状态良好</option>
+                        <option value="正常" selected>正常</option>
+                        <option value="有点疲惫">有点疲惫</option>
+                        <option value="custom">自定义感受...</option>
+                    </select>
+                    <input type="text" id="customFeeling" class="form-control feeling-custom" placeholder="请输入您的感受..." style="display: none;">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="runType">跑步时间</label>
+                    <select id="runType" class="form-control">
+                        <option value="晨跑">晨跑</option>
+                        <option value="夜跑">夜跑</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button id="addRecordBtn" class="btn btn-success" style="width: 100%;">
+                        提交打卡
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="weekly">周排名</div>
+            <div class="tab" data-tab="monthly">月排名</div>
+            <div class="tab" data-tab="yearly">年排名</div>
+            <div class="tab" data-tab="pace">配速榜</div>
+            <div class="tab" data-tab="night">夜跑榜</div>
+            <div class="tab" data-tab="soul">心灵跑者</div>
+            <div class="tab" data-tab="runners">跑者名单</div>
+            <div class="tab" data-tab="fund">团队资金</div>
+            <div class="tab" data-tab="reward">激励措施</div>
+            <div class="tab" data-tab="consistency">坚持天数榜</div>
+            <div class="tab" data-tab="records">打卡记录</div>
+            <div class="tab" data-tab="charts">数据图表</div>
+            <div class="tab" data-tab="data-management">数据管理</div>
+        </div>
+        
+        <div class="tab-content active" id="weekly-tab">
+            <h2>本周跑步排名</h2>
+            <div id="weeklyContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="monthly-tab">
+            <h2>本月跑步排名</h2>
+            <div id="monthlyContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="yearly-tab">
+            <h2>本年跑步排名</h2>
+            <div id="yearlyContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="pace-tab">
+            <h2>配速排行榜</h2>
+            <div id="paceContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="night-tab">
+            <h2>夜跑排行榜 <span class="night-runner-title">夜跑侠评选</span></h2>
+            <div id="nightContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="soul-tab">
+            <h2>心灵跑者 <span class="soul-runner-title">感悟之星评选</span></h2>
+            <div id="soulContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="runners-tab">
+            <h2>跑者名单 <span class="fund-title">团队成员</span></h2>
+            <div id="runnersContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="fund-tab">
+            <h2>团队资金管理 <span class="fund-title">资金透明公示</span></h2>
+            <div id="fundContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="reward-tab">
+            <h2>激励措施 <span class="reward-title">积分奖励制度</span></h2>
+            <div id="rewardContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="consistency-tab">
+            <h2>坚持天数排行榜</h2>
+            <div id="consistencyContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="records-tab">
+            <h2>打卡记录</h2>
+            <div id="recordsContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="charts-tab">
+            <h2>数据统计图表</h2>
+            <div id="chartsContent">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="data-management-tab">
+            <h2>数据管理</h2>
+            <div class="data-management">
+                <h3>数据导出</h3>
+                <p>将当前跑步数据导出为文件，用于备份或迁移数据。</p>
+                <div class="import-export-options">
+                    <button id="exportJsonBtn" class="btn btn-primary">导出为JSON</button>
+                    <button id="exportCsvBtn" class="btn btn-info">导出为CSV</button>
+                    <button id="copyDataBtn" class="btn btn-warning">复制数据到剪贴板</button>
+                </div>
+                
+                <h3>数据导入</h3>
+                <p>从文件导入历史跑步数据，支持JSON和CSV格式。</p>
+                <div class="import-export-options">
+                    <label for="importFile" class="file-label">
+                        选择导入文件
+                    </label>
+                    <input type="file" id="importFile" class="file-input" accept=".json,.csv">
+                    <button id="importDataBtn" class="btn btn-success">导入数据</button>
+                    <button id="clearDataBtn" class="btn btn-danger">清空所有数据</button>
+                </div>
+                
+                <div class="import-format">
+                    <h4>数据格式说明</h4>
+                    <p>JSON格式示例：</p>
+                    <pre>[
+  {
+    "runner": "张三",
+    "date": "2023-10-15",
+    "distance": 5.2,
+    "time": 28,
+    "pace": "5:23",
+    "feeling": "精力充沛",
+    "type": "晨跑"
+  },
+  {
+    "runner": "李四",
+    "date": "2023-10-15",
+    "distance": 4.8,
+    "time": 26,
+    "pace": "5:25",
+    "feeling": "状态良好",
+    "type": "夜跑"
+  }
+]</pre>
+                    
+                    <p>CSV格式示例：</p>
+                    <pre>跑步者,日期,里程,时长,配速,感受,晨跑/夜跑
+张三,2023-10-15,5.2,28,5:23,精力充沛,晨跑
+李四,2023-10-15,4.8,26,5:25,状态良好,夜跑</pre>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-text">池州悦跑团 © 2025</div>
+            <div class="footer-slogan">健康生活，从跑步开始</div>
+        </footer>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <script>
+        // 初始化跑步记录数据
+        let runningRecords = JSON.parse(localStorage.getItem('runningRecords')) || [
+            { runner: '张三', date: getDateString(-1), distance: 5.2, time: 28, pace: '5:23', feeling: '精力充沛', type: '晨跑' },
+            { runner: '李四', date: getDateString(-1), distance: 4.8, time: 26, pace: '5:25', feeling: '状态良好', type: '夜跑' },
+            { runner: '王五', date: getDateString(-2), distance: 3.8, time: 22, pace: '5:47', feeling: '正常', type: '晨跑' },
+            { runner: '张三', date: getDateString(-3), distance: 7.5, time: 45, pace: '6:00', feeling: '有点疲惫', type: '夜跑' },
+            { runner: '赵六', date: getDateString(-4), distance: 4.5, time: 27, pace: '6:00', feeling: '状态良好', type: '晨跑' },
+            { runner: '李四', date: getDateString(-5), distance: 6.0, time: 33, pace: '5:30', feeling: '精力充沛', type: '夜跑' },
+            { runner: '夜跑侠', date: getDateString(-6), distance: 8.0, time: 44, pace: '5:30', feeling: '精力充沛', type: '夜跑' },
+            { runner: '夜跑侠', date: getDateString(-7), distance: 7.2, time: 40, pace: '5:33', feeling: '状态良好', type: '夜跑' },
+            { runner: '感悟者', date: getDateString(-8), distance: 5.5, time: 32, pace: '5:49', feeling: '今天跑步时看到了美丽的日落，心情特别好', type: '夜跑' },
+            { runner: '心灵跑者', date: getDateString(-9), distance: 6.2, time: 35, pace: '5:39', feeling: '跑步时思考人生，感觉豁然开朗', type: '晨跑' }
+        ];
+
+        // 初始化团队资金数据
+        let teamFundData = JSON.parse(localStorage.getItem('teamFundData')) || {
+            totalFund: 2850,
+            usageRecords: [
+                { date: '2025-01-15', item: '购买跑步补给品', amount: 350, type: '支出' },
+                { date: '2025-01-10', item: '团队团建活动', amount: 800, type: '支出' },
+                { date: '2025-01-05', item: '跑步装备采购', amount: 450, type: '支出' },
+                { date: '2025-01-01', item: '年度会费收入', amount: 1200, type: '收入' },
+                { date: '2024-12-28', item: '企业赞助 - ABC公司', amount: 2000, type: '收入' },
+                { date: '2024-12-25', item: '个人赞助 - 张总', amount: 500, type: '收入' }
+            ],
+            sponsors: [
+                { name: 'ABC科技有限公司', amount: 2000, date: '2024-12-28', contact: '李经理 138****1234' },
+                { name: '张总', amount: 500, date: '2024-12-25', contact: '张总 139****5678' },
+                { name: '健康生活馆', amount: 300, date: '2024-12-20', contact: '王店长 137****9012' }
+            ]
+        };
+
+        // 初始化积分数据
+        let pointsData = JSON.parse(localStorage.getItem('pointsData')) || {
+            pointsRules: [
+                { rule: '每公里基础积分', points: 1, description: '跑步每公里获得1积分' },
+                { rule: '夜跑额外奖励', points: 2, description: '夜跑每次额外奖励2积分' },
+                { rule: '用心感受奖励', points: 5, description: '分享用心感受每次奖励5积分' },
+                { rule: '周排名第一', points: 20, description: '周排名第一名奖励20积分' },
+                { rule: '月排名第一', points: 50, description: '月排名第一名奖励50积分' },
+                { rule: '坚持7天奖励', points: 15, description: '连续跑步7天奖励15积分' },
+                { rule: '坚持30天奖励', points: 100, description: '连续跑步30天奖励100积分' }
+            ],
+            rewardItems: [
+                { name: '运动水杯', points: 50, stock: 10 },
+                { name: '跑步袜', points: 80, stock: 15 },
+                { name: '运动毛巾', points: 120, stock: 8 },
+                { name: '跑步腰包', points: 200, stock: 5 },
+                { name: '专业跑鞋', points: 500, stock: 3 },
+                { name: '运动手表', points: 1000, stock: 2 }
+            ]
+        };
+
+        // 辅助函数：获取日期字符串
+        function getDateString(daysOffset = 0) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysOffset);
+            return date.toISOString().split('T')[0];
+        }
+
+        // DOM元素
+        const addRecordBtn = document.getElementById('addRecordBtn');
+        const runDistance = document.getElementById('runDistance');
+        const runTime = document.getElementById('runTime');
+        const runPace = document.getElementById('runPace');
+        const paceResult = document.getElementById('paceResult');
+        const runFeeling = document.getElementById('runFeeling');
+        const customFeeling = document.getElementById('customFeeling');
+
+        // 显示消息函数
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.classList.add('show');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+
+        // 计算配速函数
+        function calculatePace(distance, time) {
+            if (!distance || !time || distance <= 0 || time <= 0) {
+                return null;
+            }
+            
+            // 计算每公里需要的时间（分钟）
+            const pacePerKm = time / distance;
+            
+            // 转换为分钟和秒
+            const minutes = Math.floor(pacePerKm);
+            const seconds = Math.round((pacePerKm - minutes) * 60);
+            
+            // 格式化输出
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 更新配速显示
+        function updatePaceDisplay() {
+            const distance = parseFloat(runDistance.value);
+            const time = parseFloat(runTime.value);
+            
+            const pace = calculatePace(distance, time);
+            
+            if (pace) {
+                paceResult.textContent = pace;
+                runPace.value = pace;
+            } else {
+                paceResult.textContent = '--:--';
+                runPace.value = '';
+            }
+        }
+
+        // 处理感受选择变化
+        function handleFeelingChange() {
+            if (runFeeling.value === 'custom') {
+                customFeeling.style.display = 'block';
+                customFeeling.focus();
+            } else {
+                customFeeling.style.display = 'none';
+                customFeeling.value = '';
+            }
+        }
+
+        // 获取最终感受值
+        function getFinalFeeling() {
+            if (runFeeling.value === 'custom') {
+                return customFeeling.value.trim() || '正常';
+            }
+            return runFeeling.value;
+        }
+
+        // 根据感受文本获取样式类
+        function getFeelingClass(feeling) {
+            if (feeling === '精力充沛') return 'feeling-excellent';
+            if (feeling === '状态良好') return 'feeling-good';
+            if (feeling === '正常') return 'feeling-normal';
+            if (feeling === '有点疲惫') return 'feeling-tired';
+            return 'feeling-custom-style'; // 自定义感受使用特殊样式
+        }
+
+        // 判断是否为用心感受（非标准选项且长度较长）
+        function isHeartfeltFeeling(feeling) {
+            const standardFeelings = ['精力充沛', '状态良好', '正常', '有点疲惫'];
+            return !standardFeelings.includes(feeling) && feeling.length > 6;
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('runningRecords', JSON.stringify(runningRecords));
+            localStorage.setItem('teamFundData', JSON.stringify(teamFundData));
+            localStorage.setItem('pointsData', JSON.stringify(pointsData));
+        }
+
+        // 计算总积分
+        function calculateTotalPoints() {
+            let totalPoints = 0;
+            
+            // 计算每个跑步者的积分
+            const runnerStats = {};
+            runningRecords.forEach(record => {
+                if (!runnerStats[record.runner]) {
+                    runnerStats[record.runner] = 0;
+                }
+                
+                // 基础积分：每公里1分
+                let points = Math.floor(record.distance);
+                
+                // 夜跑额外奖励
+                if (record.type === '夜跑') {
+                    points += 2;
+                }
+                
+                // 用心感受奖励
+                if (isHeartfeltFeeling(record.feeling)) {
+                    points += 5;
+                }
+                
+                runnerStats[record.runner] += points;
+            });
+            
+            // 累加所有跑步者的积分
+            Object.values(runnerStats).forEach(points => {
+                totalPoints += points;
+            });
+            
+            return totalPoints;
+        }
+
+        // 团队资金管理功能
+        function addFundManagementFunctions() {
+            // 添加收入记录
+            window.addIncome = function() {
+                const item = prompt('请输入收入项目名称：');
+                if (!item) return;
+                
+                const amount = parseFloat(prompt('请输入收入金额：'));
+                if (!amount || amount <= 0) {
+                    showMessage('请输入有效的金额', 'error');
+                    return;
+                }
+                
+                const newRecord = {
+                    date: getDateString(),
+                    item: item,
+                    amount: amount,
+                    type: '收入'
+                };
+                
+                teamFundData.usageRecords.unshift(newRecord);
+                teamFundData.totalFund += amount;
+                saveData();
+                updateFundManagement();
+                showMessage('收入记录添加成功！', 'success');
+            };
+
+            // 添加支出记录
+            window.addExpense = function() {
+                const item = prompt('请输入支出项目名称：');
+                if (!item) return;
+                
+                const amount = parseFloat(prompt('请输入支出金额：'));
+                if (!amount || amount <= 0) {
+                    showMessage('请输入有效的金额', 'error');
+                    return;
+                }
+                
+                if (amount > teamFundData.totalFund) {
+                    showMessage('支出金额不能超过当前资金余额', 'error');
+                    return;
+                }
+                
+                const newRecord = {
+                    date: getDateString(),
+                    item: item,
+                    amount: amount,
+                    type: '支出'
+                };
+                
+                teamFundData.usageRecords.unshift(newRecord);
+                teamFundData.totalFund -= amount;
+                saveData();
+                updateFundManagement();
+                showMessage('支出记录添加成功！', 'success');
+            };
+
+            // 添加赞助商
+            window.addSponsor = function() {
+                const name = prompt('请输入赞助商名称：');
+                if (!name) return;
+                
+                const amount = parseFloat(prompt('请输入赞助金额：'));
+                if (!amount || amount <= 0) {
+                    showMessage('请输入有效的金额', 'error');
+                    return;
+                }
+                
+                const contact = prompt('请输入联系方式：') || '';
+                
+                const newSponsor = {
+                    name: name,
+                    amount: amount,
+                    date: getDateString(),
+                    contact: contact
+                };
+                
+                teamFundData.sponsors.unshift(newSponsor);
+                
+                // 同时添加到资金记录
+                const newRecord = {
+                    date: getDateString(),
+                    item: `赞助 - ${name}`,
+                    amount: amount,
+                    type: '收入'
+                };
+                
+                teamFundData.usageRecords.unshift(newRecord);
+                teamFundData.totalFund += amount;
+                saveData();
+                updateFundManagement();
+                showMessage('赞助商添加成功！', 'success');
+            };
+
+            // 删除资金记录
+            window.deleteFundRecord = function(index) {
+                if (!confirm('确定要删除这条资金记录吗？')) return;
+                
+                const record = teamFundData.usageRecords[index];
+                if (record.type === '收入') {
+                    teamFundData.totalFund -= record.amount;
+                } else {
+                    teamFundData.totalFund += record.amount;
+                }
+                
+                teamFundData.usageRecords.splice(index, 1);
+                saveData();
+                updateFundManagement();
+                showMessage('记录删除成功', 'success');
+            };
+
+            // 删除赞助商
+            window.deleteSponsor = function(index) {
+                if (!confirm('确定要删除这个赞助商吗？')) return;
+                
+                teamFundData.sponsors.splice(index, 1);
+                saveData();
+                updateFundManagement();
+                showMessage('赞助商删除成功', 'success');
+            };
+        }
+
+        // 激励措施管理功能
+        function addRewardManagementFunctions() {
+            // 添加积分规则
+            window.addPointsRule = function() {
+                const rule = prompt('请输入积分规则名称：');
+                if (!rule) return;
+                
+                const points = parseInt(prompt('请输入积分值：'));
+                if (!points || points <= 0) {
+                    showMessage('请输入有效的积分值', 'error');
+                    return;
+                }
+                
+                const description = prompt('请输入规则描述：') || '';
+                
+                const newRule = {
+                    rule: rule,
+                    points: points,
+                    description: description
+                };
+                
+                pointsData.pointsRules.push(newRule);
+                saveData();
+                updateRewardSystem();
+                showMessage('积分规则添加成功！', 'success');
+            };
+
+            // 删除积分规则
+            window.deletePointsRule = function(index) {
+                if (!confirm('确定要删除这条积分规则吗？')) return;
+                
+                pointsData.pointsRules.splice(index, 1);
+                saveData();
+                updateRewardSystem();
+                showMessage('积分规则删除成功', 'success');
+            };
+
+            // 添加奖品
+            window.addRewardItem = function() {
+                const name = prompt('请输入奖品名称：');
+                if (!name) return;
+                
+                const points = parseInt(prompt('请输入所需积分：'));
+                if (!points || points <= 0) {
+                    showMessage('请输入有效的积分值', 'error');
+                    return;
+                }
+                
+                const stock = parseInt(prompt('请输入库存数量：')) || 0;
+                
+                const newItem = {
+                    name: name,
+                    points: points,
+                    stock: stock
+                };
+                
+                pointsData.rewardItems.push(newItem);
+                saveData();
+                updateRewardSystem();
+                showMessage('奖品添加成功！', 'success');
+            };
+
+            // 删除奖品
+            window.deleteRewardItem = function(index) {
+                if (!confirm('确定要删除这个奖品吗？')) return;
+                
+                pointsData.rewardItems.splice(index, 1);
+                saveData();
+                updateRewardSystem();
+                showMessage('奖品删除成功', 'success');
+            };
+
+            // 编辑奖品库存
+            window.editRewardStock = function(index) {
+                const item = pointsData.rewardItems[index];
+                const newStock = parseInt(prompt(`请输入 ${item.name} 的新库存数量：`, item.stock));
+                
+                if (newStock !== null && !isNaN(newStock)) {
+                    pointsData.rewardItems[index].stock = newStock;
+                    saveData();
+                    updateRewardSystem();
+                    showMessage('库存更新成功！', 'success');
+                }
+            };
+        }
+
+        // 初始化页面
+        function initPage() {
+            console.log('初始化页面...');
+            
+            // 设置默认日期为今天
+            document.getElementById('runDate').value = getDateString();
+            
+            // 设置事件监听
+            runDistance.addEventListener('input', updatePaceDisplay);
+            runTime.addEventListener('input', updatePaceDisplay);
+            runFeeling.addEventListener('change', handleFeelingChange);
+            
+            // 添加打卡记录
+            addRecordBtn.addEventListener('click', function() {
+                const runnerName = document.getElementById('runnerName').value.trim();
+                const runDate = document.getElementById('runDate').value;
+                const distance = parseFloat(runDistance.value);
+                const time = parseFloat(runTime.value);
+                const feeling = getFinalFeeling();
+                const type = document.getElementById('runType').value;
+                const pace = runPace.value;
+                
+                // 验证输入
+                if (!runnerName) {
+                    showMessage('请输入跑步者姓名', 'error');
+                    return;
+                }
+                
+                if (!runDate) {
+                    showMessage('请选择跑步日期', 'error');
+                    return;
+                }
+                
+                if (!distance || distance <= 0) {
+                    showMessage('请输入有效的跑步里程', 'error');
+                    return;
+                }
+                
+                if (!time || time <= 0) {
+                    showMessage('请输入有效的跑步时长', 'error');
+                    return;
+                }
+                
+                if (!pace) {
+                    showMessage('请确保里程和时长输入正确以计算配速', 'error');
+                    return;
+                }
+                
+                // 创建新记录
+                const newRecord = {
+                    runner: runnerName,
+                    date: runDate,
+                    distance: distance,
+                    time: time,
+                    pace: pace,
+                    feeling: feeling,
+                    type: type
+                };
+                
+                // 添加到记录数组
+                runningRecords.push(newRecord);
+                
+                // 保存到本地存储
+                saveData();
+                
+                // 更新界面
+                updateDashboard();
+                updateAllTabs();
+                
+                // 显示成功消息
+                showMessage('打卡成功！', 'success');
+                
+                // 重置表单
+                document.getElementById('runnerName').value = '';
+                runDistance.value = '';
+                runTime.value = '';
+                runPace.value = '';
+                paceResult.textContent = '--:--';
+                runFeeling.value = '正常';
+                customFeeling.style.display = 'none';
+                customFeeling.value = '';
+                document.getElementById('runType').value = '晨跑';
+            });
+            
+            // 添加管理功能
+            addFundManagementFunctions();
+            addRewardManagementFunctions();
+            
+            // 渲染所有数据
+            updateDashboard();
+            updateAllTabs();
+            
+            // 设置标签页切换
+            setupTabs();
+            
+            // 设置数据管理功能
+            setupDataManagement();
+            
+            console.log('页面初始化完成');
+        }
+
+        // 设置标签页切换
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 移除所有active类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // 添加active类到当前标签
+                    tab.classList.add('active');
+                    const tabId = `${tab.dataset.tab}-tab`;
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // 更新当前标签的内容
+                    updateTabContent(tab.dataset.tab);
+                });
+            });
+        }
+
+        // 更新标签页内容
+        function updateTabContent(tabName) {
+            console.log('更新标签页:', tabName);
+            
+            switch(tabName) {
+                case 'weekly':
+                    updateWeeklyRanking();
+                    break;
+                case 'monthly':
+                    updateMonthlyRanking();
+                    break;
+                case 'yearly':
+                    updateYearlyRanking();
+                    break;
+                case 'pace':
+                    updatePaceRanking();
+                    break;
+                case 'night':
+                    updateNightRanking();
+                    break;
+                case 'soul':
+                    updateSoulRanking();
+                    break;
+                case 'runners':
+                    updateRunnersList();
+                    break;
+                case 'fund':
+                    updateFundManagement();
+                    break;
+                case 'reward':
+                    updateRewardSystem();
+                    break;
+                case 'consistency':
+                    updateConsistencyRanking();
+                    break;
+                case 'records':
+                    updateRecordsTable();
+                    break;
+                case 'charts':
+                    updateCharts();
+                    break;
+                case 'data-management':
+                    // 数据管理页不需要特殊更新
+                    break;
+            }
+        }
+
+        // 更新所有标签页内容
+        function updateAllTabs() {
+            updateWeeklyRanking();
+            updateMonthlyRanking();
+            updateYearlyRanking();
+            updatePaceRanking();
+            updateNightRanking();
+            updateSoulRanking();
+            updateRunnersList();
+            updateFundManagement();
+            updateRewardSystem();
+            updateConsistencyRanking();
+            updateRecordsTable();
+        }
+
+        // 更新仪表板数据
+        function updateDashboard() {
+            const totalRuns = runningRecords.length;
+            const totalDistance = runningRecords.reduce((sum, record) => sum + record.distance, 0);
+            const runners = [...new Set(runningRecords.map(record => record.runner))];
+            
+            // 计算平均配速
+            let totalPaceSeconds = 0;
+            runningRecords.forEach(record => {
+                const [minutes, seconds] = record.pace.split(':').map(Number);
+                totalPaceSeconds += (minutes * 60 + seconds) * record.distance;
+            });
+            
+            let avgPace = '0:00';
+            if (totalDistance > 0) {
+                const avgPaceSeconds = totalPaceSeconds / totalDistance;
+                const avgMinutes = Math.floor(avgPaceSeconds / 60);
+                const avgSeconds = Math.round(avgPaceSeconds % 60);
+                avgPace = `${avgMinutes}:${avgSeconds.toString().padStart(2, '0')}`;
+            }
+            
+            // 更新统计卡片
+            document.getElementById('totalRuns').textContent = totalRuns;
+            document.getElementById('totalDistance').textContent = totalDistance.toFixed(1) + ' km';
+            document.getElementById('totalRunners').textContent = runners.length;
+            document.getElementById('avgPace').textContent = avgPace;
+        }
+
+        // 更新周排名
+        function updateWeeklyRanking() {
+            const content = document.getElementById('weeklyContent');
+            
+            // 获取本周日期范围
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            
+            // 筛选本周记录
+            const weeklyRecords = runningRecords.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate >= startOfWeek;
+            });
+            
+            // 计算排名
+            const ranking = calculateRanking(weeklyRecords);
+            
+            // 生成HTML
+            if (ranking.length === 0) {
+                content.innerHTML = '<div class="no-data">本周暂无打卡记录</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>排名</th><th>跑步者</th><th>总里程 (km)</th><th>跑步次数</th><th>平均配速</th></tr></thead><tbody>';
+            
+            ranking.forEach((runner, index) => {
+                const rankBadge = index < 3 ? 
+                    `<span class="ranking-badge ${['gold', 'silver', 'bronze'][index]}">${index + 1}</span>` : 
+                    `<span class="ranking-badge">${index + 1}</span>`;
+                
+                html += `<tr>
+                    <td>${rankBadge}</td>
+                    <td>${runner.name}</td>
+                    <td>${runner.totalDistance.toFixed(1)}</td>
+                    <td>${runner.count}</td>
+                    <td>${runner.avgPace}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新月排名
+        function updateMonthlyRanking() {
+            const content = document.getElementById('monthlyContent');
+            
+            // 获取本月日期范围
+            const today = new Date();
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            // 筛选本月记录
+            const monthlyRecords = runningRecords.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate >= startOfMonth;
+            });
+            
+            // 计算排名
+            const ranking = calculateRanking(monthlyRecords);
+            
+            // 生成HTML
+            if (ranking.length === 0) {
+                content.innerHTML = '<div class="no-data">本月暂无打卡记录</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>排名</th><th>跑步者</th><th>总里程 (km)</th><th>跑步次数</th><th>平均配速</th></tr></thead><tbody>';
+            
+            ranking.forEach((runner, index) => {
+                const rankBadge = index < 3 ? 
+                    `<span class="ranking-badge ${['gold', 'silver', 'bronze'][index]}">${index + 1}</span>` : 
+                    `<span class="ranking-badge">${index + 1}</span>`;
+                
+                html += `<tr>
+                    <td>${rankBadge}</td>
+                    <td>${runner.name}</td>
+                    <td>${runner.totalDistance.toFixed(1)}</td>
+                    <td>${runner.count}</td>
+                    <td>${runner.avgPace}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新年排名
+        function updateYearlyRanking() {
+            const content = document.getElementById('yearlyContent');
+            
+            // 获取本年日期范围
+            const today = new Date();
+            const startOfYear = new Date(today.getFullYear(), 0, 1);
+            
+            // 筛选本年记录
+            const yearlyRecords = runningRecords.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate >= startOfYear;
+            });
+            
+            // 计算排名
+            const ranking = calculateRanking(yearlyRecords);
+            
+            // 生成HTML
+            if (ranking.length === 0) {
+                content.innerHTML = '<div class="no-data">本年暂无打卡记录</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>排名</th><th>跑步者</th><th>总里程 (km)</th><th>跑步次数</th><th>平均配速</th></tr></thead><tbody>';
+            
+            ranking.forEach((runner, index) => {
+                const rankBadge = index < 3 ? 
+                    `<span class="ranking-badge ${['gold', 'silver', 'bronze'][index]}">${index + 1}</span>` : 
+                    `<span class="ranking-badge">${index + 1}</span>`;
+                
+                html += `<tr>
+                    <td>${rankBadge}</td>
+                    <td>${runner.name}</td>
+                    <td>${runner.totalDistance.toFixed(1)}</td>
+                    <td>${runner.count}</td>
+                    <td>${runner.avgPace}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 计算排名
+        function calculateRanking(records) {
+            const runnerStats = {};
+            
+            // 统计每个跑步者的数据
+            records.forEach(record => {
+                if (!runnerStats[record.runner]) {
+                    runnerStats[record.runner] = {
+                        name: record.runner,
+                        totalDistance: 0,
+                        totalTime: 0,
+                        count: 0,
+                        totalPaceSeconds: 0
+                    };
+                }
+                
+                const stats = runnerStats[record.runner];
+                stats.totalDistance += record.distance;
+                stats.totalTime += record.time;
+                stats.count += 1;
+                
+                // 计算配速总秒数
+                const [minutes, seconds] = record.pace.split(':').map(Number);
+                stats.totalPaceSeconds += (minutes * 60 + seconds) * record.distance;
+            });
+            
+            // 计算平均配速
+            Object.values(runnerStats).forEach(stats => {
+                if (stats.totalDistance > 0) {
+                    const avgPaceSeconds = stats.totalPaceSeconds / stats.totalDistance;
+                    const avgMinutes = Math.floor(avgPaceSeconds / 60);
+                    const avgSeconds = Math.round(avgPaceSeconds % 60);
+                    stats.avgPace = `${avgMinutes}:${avgSeconds.toString().padStart(2, '0')}`;
+                } else {
+                    stats.avgPace = '0:00';
+                }
+            });
+            
+            // 转换为数组并按总里程排序
+            return Object.values(runnerStats)
+                .sort((a, b) => b.totalDistance - a.totalDistance);
+        }
+
+        // 更新配速排行榜
+        function updatePaceRanking() {
+            const content = document.getElementById('paceContent');
+            
+            // 计算每个跑步者的平均配速
+            const runnerStats = {};
+            
+            runningRecords.forEach(record => {
+                if (!runnerStats[record.runner]) {
+                    runnerStats[record.runner] = {
+                        name: record.runner,
+                        totalDistance: 0,
+                        totalPaceSeconds: 0
+                    };
+                }
+                
+                const stats = runnerStats[record.runner];
+                stats.totalDistance += record.distance;
+                
+                // 计算配速总秒数
+                const [minutes, seconds] = record.pace.split(':').map(Number);
+                stats.totalPaceSeconds += (minutes * 60 + seconds) * record.distance;
+            });
+            
+            // 计算平均配速并转换为可排序的数值
+            const paceRanking = Object.values(runnerStats)
+                .filter(stats => stats.totalDistance > 0)
+                .map(stats => {
+                    const avgPaceSeconds = stats.totalPaceSeconds / stats.totalDistance;
+                    const avgMinutes = Math.floor(avgPaceSeconds / 60);
+                    const avgSeconds = Math.round(avgPaceSeconds % 60);
+                    
+                    return {
+                        name: stats.name,
+                        avgPace: `${avgMinutes}:${avgSeconds.toString().padStart(2, '0')}`,
+                        paceValue: avgPaceSeconds // 用于排序
+                    };
+                })
+                .sort((a, b) => a.paceValue - b.paceValue); // 配速越低排名越高
+            
+            // 生成HTML
+            if (paceRanking.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无配速数据</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>排名</th><th>跑步者</th><th>平均配速</th></tr></thead><tbody>';
+            
+            paceRanking.forEach((runner, index) => {
+                const rankBadge = index < 3 ? 
+                    `<span class="ranking-badge ${['gold', 'silver', 'bronze'][index]}">${index + 1}</span>` : 
+                    `<span class="ranking-badge">${index + 1}</span>`;
+                
+                html += `<tr>
+                    <td>${rankBadge}</td>
+                    <td>${runner.name}</td>
+                    <td>${runner.avgPace}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新夜跑排行榜
+        function updateNightRanking() {
+            const content = document.getElementById('nightContent');
+            
+            // 筛选夜跑记录
+            const nightRecords = runningRecords.filter(record => record.type === '夜跑');
+            
+            if (nightRecords.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无夜跑记录</div>';
+                return;
+            }
+            
+            // 统计夜跑数据
+            const nightStats = {};
+            nightRecords.forEach(record => {
+                if (!nightStats[record.runner]) {
+                    nightStats[record.runner] = {
+                        name: record.runner,
+                        totalDistance: 0,
+                        count: 0,
+                        totalPaceSeconds: 0,
+                        lastRun: record.date
+                    };
+                }
+                
+                const stats = nightStats[record.runner];
+                stats.totalDistance += record.distance;
+                stats.count += 1;
+                
+                // 计算配速总秒数
+                const [minutes, seconds] = record.pace.split(':').map(Number);
+                stats.totalPaceSeconds += (minutes * 60 + seconds) * record.distance;
+                
+                // 更新最后跑步日期
+                if (record.date > stats.lastRun) {
+                    stats.lastRun = record.date;
+                }
+            });
+            
+            // 计算平均配速
+            Object.values(nightStats).forEach(stats => {
+                if (stats.totalDistance > 0) {
+                    const avgPaceSeconds = stats.totalPaceSeconds / stats.totalDistance;
+                    const avgMinutes = Math.floor(avgPaceSeconds / 60);
+                    const avgSeconds = Math.round(avgPaceSeconds % 60);
+                    stats.avgPace = `${avgMinutes}:${avgSeconds.toString().padStart(2, '0')}`;
+                }
+            });
+            
+            // 按夜跑次数排序
+            const nightRanking = Object.values(nightStats)
+                .sort((a, b) => b.count - a.count);
+            
+            let html = `
+                <div class="night-runner-section">
+                    <div class="night-runner-title-main">🏆 夜跑侠荣誉榜</div>
+                    <p>评选标准：夜跑次数最多的跑者将获得"夜跑侠"称号！</p>
+                    
+                    <div class="night-runner-grid">
+            `;
+            
+            nightRanking.forEach((runner, index) => {
+                const isTop = index === 0;
+                html += `
+                    <div class="night-runner-card ${isTop ? 'top' : ''}">
+                        <div class="night-runner-name">${runner.name}</div>
+                        <div class="night-runner-stats">
+                            <div>夜跑次数: ${runner.count} 次</div>
+                            <div>总里程: ${runner.totalDistance.toFixed(1)} km</div>
+                            <div>平均配速: ${runner.avgPace}</div>
+                            ${isTop ? '<div style="color: var(--night-run); font-weight: bold; margin-top: 5px;">🌟 夜跑侠</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr class="night-run-header">
+                            <th>排名</th>
+                            <th>夜跑者</th>
+                            <th>夜跑次数</th>
+                            <th>夜跑总里程</th>
+                            <th>平均配速</th>
+                            <th>最后夜跑</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            nightRanking.forEach((runner, index) => {
+                const rankBadge = index < 3 ? 
+                    `<span class="ranking-badge ${['gold', 'silver', 'bronze'][index]}">${index + 1}</span>` : 
+                    `<span class="ranking-badge">${index + 1}</span>`;
+                
+                html += `<tr>
+                    <td>${rankBadge}</td>
+                    <td>${runner.name} ${index === 0 ? '🌟' : ''}</td>
+                    <td>${runner.count}</td>
+                    <td>${runner.totalDistance.toFixed(1)} km</td>
+                    <td>${runner.avgPace}</td>
+                    <td>${runner.lastRun}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新心灵跑者排行榜
+        function updateSoulRanking() {
+            const content = document.getElementById('soulContent');
+            
+            // 筛选用心感受的记录
+            const heartfeltRecords = runningRecords.filter(record => 
+                isHeartfeltFeeling(record.feeling)
+            );
+            
+            if (heartfeltRecords.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无用心感受记录，鼓励大家多分享跑步时的真实感受！</div>';
+                return;
+            }
+            
+            // 按跑步者分组用心感受
+            const soulStats = {};
+            heartfeltRecords.forEach(record => {
+                if (!soulStats[record.runner]) {
+                    soulStats[record.runner] = {
+                        name: record.runner,
+                        heartfeltCount: 0,
+                        totalDistance: 0,
+                        feelings: []
+                    };
+                }
+                
+                const stats = soulStats[record.runner];
+                stats.heartfeltCount += 1;
+                stats.totalDistance += record.distance;
+                stats.feelings.push({
+                    date: record.date,
+                    feeling: record.feeling,
+                    distance: record.distance
+                });
+            });
+            
+            // 按用心感受次数排序
+            const soulRanking = Object.values(soulStats)
+                .sort((a, b) => b.heartfeltCount - a.heartfeltCount);
+            
+            let html = `
+                <div class="soul-runner-section">
+                    <div class="soul-runner-title-main">💖 心灵跑者荣誉榜</div>
+                    <p>评选标准：分享真实、用心跑步感受的跑者将获得"心灵跑者"称号！</p>
+                    
+                    <div class="soul-runner-grid">
+            `;
+            
+            soulRanking.forEach((runner, index) => {
+                const isTop = index === 0;
+                html += `
+                    <div class="soul-runner-card ${isTop ? 'top' : ''}">
+                        <div class="soul-runner-name">${runner.name}</div>
+                        <div class="soul-runner-stats">
+                            <div>用心感受: ${runner.heartfeltCount} 次</div>
+                            <div>总里程: ${runner.totalDistance.toFixed(1)} km</div>
+                            ${isTop ? '<div style="color: var(--soul-run); font-weight: bold; margin-top: 5px;">💫 心灵跑者</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+                
+                <h3>用心感受分享</h3>
+                <table>
+                    <thead>
+                        <tr class="soul-run-header">
+                            <th>跑步者</th>
+                            <th>日期</th>
+                            <th>里程</th>
+                            <th>用心感受</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            heartfeltRecords
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .forEach(record => {
+                    html += `<tr>
+                        <td>${record.runner}</td>
+                        <td>${record.date}</td>
+                        <td>${record.distance} km</td>
+                        <td>
+                            <span class="feeling-badge feeling-custom-style">${record.feeling}</span>
+                        </td>
+                    </tr>`;
+                });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新跑者名单
+        function updateRunnersList() {
+            const content = document.getElementById('runnersContent');
+            
+            const runners = [...new Set(runningRecords.map(record => record.runner))];
+            
+            if (runners.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无跑者数据</div>';
+                return;
+            }
+            
+            // 计算每个跑者的统计数据
+            const runnerStats = {};
+            runningRecords.forEach(record => {
+                if (!runnerStats[record.runner]) {
+                    runnerStats[record.runner] = {
+                        name: record.runner,
+                        totalDistance: 0,
+                        totalRuns: 0,
+                        nightRuns: 0,
+                        lastRun: record.date
+                    };
+                }
+                
+                const stats = runnerStats[record.runner];
+                stats.totalDistance += record.distance;
+                stats.totalRuns += 1;
+                if (record.type === '夜跑') {
+                    stats.nightRuns += 1;
+                }
+                if (record.date > stats.lastRun) {
+                    stats.lastRun = record.date;
+                }
+            });
+            
+            let html = `
+                <div class="fund-section">
+                    <div class="fund-title-main">🏃‍♂️ 跑团成员总览</div>
+                    <p>共 <strong>${runners.length}</strong> 名跑者参与，累计跑步 <strong>${runningRecords.length}</strong> 次，总里程 <strong>${runningRecords.reduce((sum, record) => sum + record.distance, 0).toFixed(1)}</strong> 公里</p>
+                    
+                    <div class="runner-list">
+            `;
+            
+            runners.forEach(runner => {
+                const stats = runnerStats[runner];
+                html += `
+                    <div class="runner-item">
+                        <div class="runner-name">${runner}</div>
+                        <div class="runner-stats">
+                            <small>${stats.totalRuns}次跑步</small><br>
+                            <small>${stats.totalDistance.toFixed(1)}km</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+                
+                <h3>跑者详细统计</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>跑者姓名</th>
+                            <th>跑步次数</th>
+                            <th>总里程</th>
+                            <th>夜跑次数</th>
+                            <th>最后跑步</th>
+                            <th>参与度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.values(runnerStats)
+                .sort((a, b) => b.totalRuns - a.totalRuns)
+                .forEach(stats => {
+                    const participation = ((stats.totalRuns / runningRecords.length) * 100).toFixed(1);
+                    html += `<tr>
+                        <td>${stats.name}</td>
+                        <td>${stats.totalRuns}</td>
+                        <td>${stats.totalDistance.toFixed(1)} km</td>
+                        <td>${stats.nightRuns}</td>
+                        <td>${stats.lastRun}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${participation}%"></div>
+                            </div>
+                            ${participation}%
+                        </td>
+                    </tr>`;
+                });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新团队资金管理
+        function updateFundManagement() {
+            const content = document.getElementById('fundContent');
+            
+            const totalIncome = teamFundData.usageRecords
+                .filter(record => record.type === '收入')
+                .reduce((sum, record) => sum + record.amount, 0);
+                
+            const totalExpense = teamFundData.usageRecords
+                .filter(record => record.type === '支出')
+                .reduce((sum, record) => sum + record.amount, 0);
+            
+            let html = `
+                <div class="fund-section">
+                    <div class="fund-title-main">💰 团队资金总览</div>
+                    <div class="fund-grid">
+                        <div class="fund-card">
+                            <div class="fund-name">当前资金</div>
+                            <div class="fund-stats" style="font-size: 1.5rem; color: var(--fund); font-weight: bold;">
+                                ${teamFundData.totalFund} 元
+                            </div>
+                        </div>
+                        <div class="fund-card">
+                            <div class="fund-name">总收入</div>
+                            <div class="fund-stats" style="color: var(--secondary);">
+                                ${totalIncome} 元
+                            </div>
+                        </div>
+                        <div class="fund-card">
+                            <div class="fund-name">总支出</div>
+                            <div class="fund-stats" style="color: var(--accent);">
+                                ${totalExpense} 元
+                            </div>
+                        </div>
+                        <div class="fund-card">
+                            <div class="fund-name">资金余额</div>
+                            <div class="fund-stats" style="color: var(--primary);">
+                                ${teamFundData.totalFund} 元
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="fund-management">
+                    <h3>资金管理</h3>
+                    <div class="edit-buttons">
+                        <button class="btn btn-success" onclick="addIncome()">➕ 添加收入</button>
+                        <button class="btn btn-warning" onclick="addExpense()">➖ 添加支出</button>
+                        <button class="btn btn-info" onclick="addSponsor()">🤝 添加赞助商</button>
+                    </div>
+                    
+                    <div class="management-grid">
+                        <div>
+                            <h4>资金流水记录</h4>
+            `;
+            
+            if (teamFundData.usageRecords.length === 0) {
+                html += '<div class="no-data">暂无资金记录</div>';
+            } else {
+                let balance = 0;
+                teamFundData.usageRecords
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .forEach((record, index) => {
+                        if (record.type === '收入') {
+                            balance += record.amount;
+                        } else {
+                            balance -= record.amount;
+                        }
+                        
+                        html += `
+                            <div class="fund-usage-item editable-item">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>${record.item}</strong>
+                                        <div style="color: var(--gray); font-size: 0.9rem;">${record.date}</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: ${record.type === '收入' ? 'var(--secondary)' : 'var(--accent)'}; font-weight: bold; font-size: 1.1rem;">
+                                            ${record.type === '收入' ? '+' : '-'}${record.amount} 元
+                                        </div>
+                                        <div style="color: var(--gray); font-size: 0.9rem;">余额: ${balance} 元</div>
+                                    </div>
+                                </div>
+                                <div class="edit-icon delete-icon" onclick="deleteFundRecord(${index})" title="删除记录">×</div>
+                            </div>
+                        `;
+                    });
+            }
+            
+            html += `
+                        </div>
+                        <div>
+                            <h4>赞助商管理</h4>
+            `;
+            
+            if (teamFundData.sponsors.length === 0) {
+                html += '<div class="no-data">暂无赞助商</div>';
+            } else {
+                teamFundData.sponsors.forEach((sponsor, index) => {
+                    html += `
+                        <div class="sponsor-item editable-item">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${sponsor.name}</strong>
+                                    <div style="color: var(--gray); font-size: 0.9rem;">${sponsor.contact}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="color: var(--secondary); font-weight: bold; font-size: 1.2rem;">${sponsor.amount} 元</div>
+                                    <div style="color: var(--gray); font-size: 0.9rem;">${sponsor.date}</div>
+                                </div>
+                            </div>
+                            <div class="edit-icon delete-icon" onclick="deleteSponsor(${index})" title="删除赞助商">×</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += `
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>资金使用记录</h3>
+                <table>
+                    <thead>
+                        <tr class="fund-header">
+                            <th>日期</th>
+                            <th>项目</th>
+                            <th>金额</th>
+                            <th>类型</th>
+                            <th>余额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            let balance = 0;
+            teamFundData.usageRecords
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .forEach(record => {
+                    if (record.type === '收入') {
+                        balance += record.amount;
+                    } else {
+                        balance -= record.amount;
+                    }
+                    
+                    html += `<tr>
+                        <td>${record.date}</td>
+                        <td>${record.item}</td>
+                        <td style="color: ${record.type === '收入' ? 'var(--secondary)' : 'var(--accent)'}; font-weight: bold;">
+                            ${record.type === '收入' ? '+' : '-'}${record.amount} 元
+                        </td>
+                        <td><span class="feeling-badge ${record.type === '收入' ? 'feeling-excellent' : 'feeling-tired'}">${record.type}</span></td>
+                        <td>${balance} 元</td>
+                    </tr>`;
+                });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新激励措施
+        function updateRewardSystem() {
+            const content = document.getElementById('rewardContent');
+            
+            let html = `
+                <div class="reward-section">
+                    <div class="reward-title-main">🎯 积分奖励制度</div>
+                    <p>通过跑步积累积分，兑换精美奖品！积分规则透明公正，鼓励大家坚持跑步。</p>
+                    
+                    <div class="edit-buttons">
+                        <button class="btn btn-success" onclick="addPointsRule()">➕ 添加积分规则</button>
+                    </div>
+                    
+                    <div class="points-system">
+                        <h4>📊 积分规则</h4>
+            `;
+            
+            pointsData.pointsRules.forEach((rule, index) => {
+                html += `
+                    <div class="points-rule editable-item">
+                        <div>
+                            <strong>${rule.rule}</strong>
+                            <div style="color: var(--gray); font-size: 0.9rem;">${rule.description}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="color: var(--reward); font-weight: bold; font-size: 1.1rem;">
+                                +${rule.points}分
+                            </div>
+                            <div class="edit-icon delete-icon" onclick="deletePointsRule(${index})" title="删除规则">×</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+                
+                <div class="reward-section">
+                    <div class="reward-title-main">🏆 排行榜奖励措施</div>
+                    <div class="reward-grid">
+                        <div class="reward-card">
+                            <div class="reward-name">周排名奖励</div>
+                            <div class="reward-stats">
+                                <div>🥇 第一名: 运动水杯 + 20积分</div>
+                                <div>🥈 第二名: 运动毛巾 + 15积分</div>
+                                <div>🥉 第三名: 跑步袜 + 10积分</div>
+                            </div>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-name">月排名奖励</div>
+                            <div class="reward-stats">
+                                <div>🥇 第一名: 跑步腰包 + 50积分</div>
+                                <div>🥈 第二名: 专业跑鞋 + 30积分</div>
+                                <div>🥉 第三名: 运动装备 + 20积分</div>
+                            </div>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-name">年度大奖</div>
+                            <div class="reward-stats">
+                                <div>🏆 年度跑者: 运动手表</div>
+                                <div>🌟 夜跑侠: 夜跑装备套装</div>
+                                <div>💖 心灵跑者: 定制奖杯</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reward-section">
+                    <div class="reward-title-main">🎁 积分兑换商城</div>
+                    
+                    <div class="edit-buttons">
+                        <button class="btn btn-success" onclick="addRewardItem()">➕ 添加奖品</button>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr class="reward-header">
+                                <th>奖品名称</th>
+                                <th>所需积分</th>
+                                <th>库存</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            pointsData.rewardItems.forEach((item, index) => {
+                const status = item.stock > 0 ? '可兑换' : '缺货';
+                const statusClass = item.stock > 0 ? 'feeling-excellent' : 'feeling-tired';
+                
+                html += `<tr>
+                    <td>${item.name}</td>
+                    <td style="color: var(--reward); font-weight: bold;">${item.points} 积分</td>
+                    <td>${item.stock} 件</td>
+                    <td><span class="feeling-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-info btn-sm" onclick="editRewardStock(${index})" style="padding: 5px 10px; font-size: 0.8rem;">编辑库存</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRewardItem(${index})" style="padding: 5px 10px; font-size: 0.8rem;">删除</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="reward-section">
+                    <div class="reward-title-main">🤝 赞助商权益</div>
+                    <div class="reward-item">
+                        <h4>金牌赞助商 (5000元以上)</h4>
+                        <ul>
+                            <li>企业logo在跑团所有宣传材料展示</li>
+                            <li>跑团活动冠名权</li>
+                            <li>跑团服装广告位</li>
+                            <li>社交媒体专属推广</li>
+                        </ul>
+                    </div>
+                    <div class="reward-item">
+                        <h4>银牌赞助商 (2000-5000元)</h4>
+                        <ul>
+                            <li>企业logo在跑团网站和APP展示</li>
+                            <li>跑团活动联合宣传</li>
+                            <li>跑团通讯稿提及</li>
+                        </ul>
+                    </div>
+                    <div class="reward-item">
+                        <h4>铜牌赞助商 (500-2000元)</h4>
+                        <ul>
+                            <li>企业名称在赞助商名单展示</li>
+                            <li>跑团活动参与机会</li>
+                            <li>跑团感谢信</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        // 更新坚持天数排行榜
+        function updateConsistencyRanking() {
+            const content = document.getElementById('consistencyContent');
+            
+            // 计算每个跑步者的跑步天数
+            const runnerDays = {};
+            
+            runningRecords.forEach(record => {
+                if (!runnerDays[record.runner]) {
+                    runnerDays[record.runner] = new Set();
+                }
+                runnerDays[record.runner].add(record.date);
+            });
+            
+            // 转换为数组并排序
+            const consistencyRanking = Object.entries(runnerDays)
+                .map(([name, daysSet]) => ({
+                    name,
+                    days: daysSet.size
+                }))
+                .sort((a, b) => b.days - a.days);
+            
+            // 生成HTML
+            if (consistencyRanking.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无坚持天数数据</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>排名</th><th>跑步者</th><th>坚持天数</th></tr></thead><tbody>';
+            
+            consistencyRanking.forEach((runner, index) => {
+                const rankBadge = index < 3 ? 
+                    `<span class="ranking-badge ${['gold', 'silver', 'bronze'][index]}">${index + 1}</span>` : 
+                    `<span class="ranking-badge">${index + 1}</span>`;
+                
+                html += `<tr>
+                    <td>${rankBadge}</td>
+                    <td>${runner.name}</td>
+                    <td>${runner.days} 天</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新打卡记录表格
+        function updateRecordsTable() {
+            const content = document.getElementById('recordsContent');
+            
+            if (runningRecords.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无打卡记录</div>';
+                return;
+            }
+            
+            // 按日期排序（最新的在前）
+            const sortedRecords = [...runningRecords].sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
+            
+            let html = '<table><thead><tr><th>日期</th><th>跑步者</th><th>里程 (km)</th><th>时长 (分钟)</th><th>配速</th><th>感受</th><th>晨跑/夜跑</th></tr></thead><tbody>';
+            
+            sortedRecords.forEach(record => {
+                const feelingClass = getFeelingClass(record.feeling);
+                const timeTypeClass = record.type === '晨跑' ? 'morning-run' : 'night-run';
+                
+                html += `<tr>
+                    <td>${record.date}</td>
+                    <td>${record.runner}</td>
+                    <td>${record.distance.toFixed(1)}</td>
+                    <td>${record.time}</td>
+                    <td>${record.pace}</td>
+                    <td><span class="feeling-badge ${feelingClass}">${record.feeling}</span></td>
+                    <td><span class="time-type-badge ${timeTypeClass}">${record.type}</span></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // 更新图表
+        function updateCharts() {
+            const content = document.getElementById('chartsContent');
+            
+            if (runningRecords.length === 0) {
+                content.innerHTML = '<div class="no-data">暂无数据可生成图表</div>';
+                return;
+            }
+            
+            // 创建图表容器
+            content.innerHTML = `
+                <div class="chart-container">
+                    <canvas id="distanceChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="paceChart"></canvas>
+                </div>
+            `;
+            
+            // 绘制距离图表
+            const distanceCtx = document.getElementById('distanceChart').getContext('2d');
+            
+            // 按跑步者分组距离数据
+            const runnerDistances = {};
+            runningRecords.forEach(record => {
+                if (!runnerDistances[record.runner]) {
+                    runnerDistances[record.runner] = 0;
+                }
+                runnerDistances[record.runner] += record.distance;
+            });
+            
+            new Chart(distanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(runnerDistances),
+                    datasets: [{
+                        label: '总里程 (km)',
+                        data: Object.values(runnerDistances),
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(230, 126, 34, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(52, 152, 219)',
+                            'rgb(46, 204, 113)',
+                            'rgb(155, 89, 182)',
+                            'rgb(241, 196, 15)',
+                            'rgb(230, 126, 34)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '里程 (km)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 绘制配速图表
+            const paceCtx = document.getElementById('paceChart').getContext('2d');
+            
+            // 计算每个跑步者的平均配速
+            const runnerPaces = {};
+            runningRecords.forEach(record => {
+                if (!runnerPaces[record.runner]) {
+                    runnerPaces[record.runner] = {
+                        totalPaceSeconds: 0,
+                        totalDistance: 0
+                    };
+                }
+                
+                const [minutes, seconds] = record.pace.split(':').map(Number);
+                runnerPaces[record.runner].totalPaceSeconds += (minutes * 60 + seconds) * record.distance;
+                runnerPaces[record.runner].totalDistance += record.distance;
+            });
+            
+            const paceData = Object.entries(runnerPaces).map(([runner, data]) => {
+                const avgPaceSeconds = data.totalDistance > 0 ? data.totalPaceSeconds / data.totalDistance : 0;
+                return {
+                    runner,
+                    pace: avgPaceSeconds / 60 // 转换为分钟
+                };
+            });
+            
+            new Chart(paceCtx, {
+                type: 'bar',
+                data: {
+                    labels: paceData.map(item => item.runner),
+                    datasets: [{
+                        label: '平均配速 (分钟/公里)',
+                        data: paceData.map(item => item.pace.toFixed(2)),
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgb(231, 76, 60)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '配速 (分钟/公里)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 设置数据管理功能
+        function setupDataManagement() {
+            const exportJsonBtn = document.getElementById('exportJsonBtn');
+            const exportCsvBtn = document.getElementById('exportCsvBtn');
+            const copyDataBtn = document.getElementById('copyDataBtn');
+            const importFile = document.getElementById('importFile');
+            const importDataBtn = document.getElementById('importDataBtn');
+            const clearDataBtn = document.getElementById('clearDataBtn');
+            
+            // 导出JSON
+            exportJsonBtn.addEventListener('click', function() {
+                const dataStr = JSON.stringify(runningRecords, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = '池州悦跑团数据.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                showMessage('JSON数据导出成功！', 'success');
+            });
+            
+            // 导出CSV
+            exportCsvBtn.addEventListener('click', function() {
+                let csvContent = "跑步者,日期,里程(km),时长(分钟),配速(min/km),感受,晨跑/夜跑\n";
+                
+                runningRecords.forEach(record => {
+                    csvContent += `"${record.runner}","${record.date}",${record.distance},${record.time},"${record.pace}","${record.feeling}","${record.type}"\n`;
+                });
+                
+                const dataBlob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = '池州悦跑团数据.csv';
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                showMessage('CSV数据导出成功！', 'success');
+            });
+            
+            // 复制数据到剪贴板
+            copyDataBtn.addEventListener('click', function() {
+                const dataStr = JSON.stringify(runningRecords, null, 2);
+                
+                navigator.clipboard.writeText(dataStr).then(() => {
+                    showMessage('数据已复制到剪贴板！', 'success');
+                }).catch(err => {
+                    console.error('复制失败: ', err);
+                    showMessage('复制失败，请重试', 'error');
+                });
+            });
+            
+            // 导入数据
+            importDataBtn.addEventListener('click', function() {
+                if (!importFile.files.length) {
+                    showMessage('请选择要导入的文件', 'error');
+                    return;
+                }
+                
+                const file = importFile.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        let importedRecords = [];
+                        const fileContent = e.target.result;
+                        
+                        if (file.name.endsWith('.json')) {
+                            // 导入JSON格式
+                            importedRecords = JSON.parse(fileContent);
+                        } else if (file.name.endsWith('.csv')) {
+                            // 导入CSV格式
+                            importedRecords = parseCsvData(fileContent);
+                        } else {
+                            showMessage('不支持的文件格式，请使用JSON或CSV文件', 'error');
+                            return;
+                        }
+                        
+                        // 验证数据格式
+                        if (!Array.isArray(importedRecords)) {
+                            showMessage('数据格式错误：应为数组格式', 'error');
+                            return;
+                        }
+                        
+                        // 验证每条记录
+                        let validRecords = 0;
+                        importedRecords.forEach((record, index) => {
+                            if (isValidRecord(record)) {
+                                // 检查是否已存在相同记录（同一个人同一天）
+                                const exists = runningRecords.some(r => 
+                                    r.runner === record.runner && r.date === record.date
+                                );
+                                
+                                if (!exists) {
+                                    runningRecords.push(record);
+                                    validRecords++;
+                                }
+                            }
+                        });
+                        
+                        // 保存并更新界面
+                        saveData();
+                        updateDashboard();
+                        updateAllTabs();
+                        
+                        showMessage(`成功导入 ${validRecords} 条记录！`, 'success');
+                        importFile.value = ''; // 清空文件选择
+                    } catch (error) {
+                        console.error('导入数据时出错:', error);
+                        showMessage('导入失败：' + error.message, 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            });
+            
+            // 清空数据
+            clearDataBtn.addEventListener('click', function() {
+                if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                    runningRecords = [];
+                    saveData();
+                    updateDashboard();
+                    updateAllTabs();
+                    showMessage('所有数据已清空', 'success');
+                }
+            });
+        }
+
+        // 解析CSV数据
+        function parseCsvData(csvContent) {
+            const lines = csvContent.split('\n').filter(line => line.trim());
+            const records = [];
+            
+            // 跳过表头
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                // 简单的CSV解析，处理带引号的字段
+                const parts = line.split(',').map(part => {
+                    // 移除引号
+                    return part.replace(/^"|"$/g, '').trim();
+                });
+                
+                if (parts.length >= 7) {
+                    const record = {
+                        runner: parts[0],
+                        date: parts[1],
+                        distance: parseFloat(parts[2]),
+                        time: parseInt(parts[3]),
+                        pace: parts[4],
+                        feeling: parts[5],
+                        type: parts[6]
+                    };
+                    
+                    if (isValidRecord(record)) {
+                        records.push(record);
+                    }
+                }
+            }
+            
+            return records;
+        }
+
+        // 验证记录格式
+        function isValidRecord(record) {
+            return (
+                record.runner &&
+                record.date &&
+                typeof record.distance === 'number' && record.distance > 0 &&
+                typeof record.time === 'number' && record.time > 0 &&
+                record.pace && record.pace.includes(':') &&
+                record.feeling &&
+                record.type
+            );
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>
